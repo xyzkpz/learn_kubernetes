@@ -96,8 +96,56 @@ more integrations available for cloud providers like AWS,Google Cloude, azure
 -- kops used to spin up high available prod cluster
 
 -- doing hands on as much as possible
-https://github.com/kubernetes/minikube
 https://www.digitalocean.com/
 
 //////////////////////////////////// MINIKUBE SETUP ////////////////////////////////////////
+https://github.com/kubernetes/minikube
+dawnload vmwere and virtual box
 
+dawnload repo and unzip and run below commands
+
+MINIKUBE 	
+	-- is a toool makes it easy to run kubernetes localy
+	-- minikube runs as a single node kubernetes cluster inside vm
+	-- it is aimes is to run for testing and developement
+	-- it cannot spinup prod cluster
+	-- it is one node machine with no high availablity
+	
+to lanch cluster in windows powershell / linux shell 
+-- type 
+minikube start
+
+
+//////////////////////////////////// setup minikube commands ////////////////////////////////////////
+
+visit
+https://github.com/kubernetes/minikube
+
+goto tags and relese tab and dawnload or dawnload using package manager
+-- sometime it not works
+
+//////////////////////////////////// setup local kubernetes using docker client //////////////////////////////////
+
+dawnload edge commnuity version | not stable
+
+https://docs.docker.com/desktop/windows/install/
+
+https://docs.docker.com/desktop/mac/install/
+
+dawnload and enable kubernetes on mac os 
+
+
+-- kubectl get nodes
+-- kubectl config get-contexts
+-- kubectl config use-context <choose NAME HERE>
+
+# run demo images
+kubectl run hello-kubernetes --image=k8s.gcr.is/echoserver:1.4 --port=8080
+kubectl expose deployment hello-kubernetes --type=NodePort
+kubectl get service hello-kubernetes
+
+open browser and type port 
+http:localhost:65468
+
+
+## if above steps work correcly kubernetes cluster setups is working correcly
