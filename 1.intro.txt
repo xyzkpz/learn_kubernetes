@@ -1,0 +1,103 @@
+what is kubernetes
+https://github.com/wardviaene/kubernetes-course
+
+
+kubernetes is open source orchestration system for docker container 
+-- it let you schedule container on a cluster of machine
+-- you can run multiple container on one machine -- multiple make a cluster
+-- you can run long running services ( like web apps )
+-- kubernetes manage statte of these container
+	-- can start the container on specific nodes
+	-- k8 restart container when it get kills
+	-- can move containers from one node to another nodes
+	
+	
+/// if main server is in maintainance we can move to another node
+
+instead of just running a few docker container on one host manually 
+kubernetes is a platform that will manage the container for you
+kubernetes cluster can start with one node with thousands of nodes
+some of the populer docker orchestration are
+
+-- docker swarm
+-- mesos
+
+/// advantages of k8 
+run kubernetes on anywhere
+-- on premise ( own datacenter )
+-- public ( aws , google cloud .. )
+-- hybrid ( public / private ) -- manage workloads on diff side
+
+--highly modular
+-- open source
+-- great communitu
+-- backed by google
+
+
+
+/////////////////////////// VM AND CONTAINER ///////////////////////////
+VM
+
+server ( physical machine )
+host os ( windows / linux )
+hyperviser ( manage multiple os )
+os      | os       | os       | virtual machines
+bin/lib | bin/ lib | bin/lib  | virtual machines
+app1    | app2     | app3     | virtual machines
+
+
+
+CONTAINER
+server ( physical machine )
+host os ( windows / linux )
+docker engine
+bin/lib  |  bin/lib | container
+app1 | app2 | app3  | container
+
+
+
+CONTAINER ON CLOUD
+server ( physical machine )
+host os ( windows / linux )
+HYPERVISER - MANAGE OS
+GUEST OS - RUN MULTIPLE OS 
+docker engine
+bin/lib  |  bin/lib | container
+app1 | app2 | app3  | container
+
+Docker most  populer container softwere
+-- alternatev to docker is rkt  -  which works with kubernetes
+-- Docker enginer
+	-- the docker runtime
+	-- softwere to make and run docker images
+-- Docker hub
+	-- online service to store and fetch docker images
+	-- build and store images using enginer store online publicky and private | not build on pc we can use online service to do that build
+-- other docker hubs 
+	-- aws -- own saprate repo to manage images
+	
+-- docker benefites
+isolation:- ship binaries with dependencies
+	-- work any machine
+	-- QA , DEV , PROD
+	-- docker makes dev teams able to ship faster
+	-- run same image on multiple os and clouds
+	-- docker uses linux kernal 
+	
+	
+////////////////////////// KUBERNETES SETUP /////////////////////////
+
+more integrations available for cloud providers like AWS,Google Cloude, azure 
+-- things like volumes and external load balancer work only with supported cloud providers
+-- look for cloud provider plugins which is suppoerted
+
+--minikube -- spinup local machine with kubernetes cluster
+-- spinup kubernetes cluster on AWS using kops
+-- kops used to spin up high available prod cluster
+
+-- doing hands on as much as possible
+https://github.com/kubernetes/minikube
+https://www.digitalocean.com/
+
+//////////////////////////////////// MINIKUBE SETUP ////////////////////////////////////////
+
