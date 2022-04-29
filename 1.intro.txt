@@ -98,7 +98,7 @@ more integrations available for cloud providers like AWS,Google Cloude, azure
 -- doing hands on as much as possible
 https://www.digitalocean.com/
 
-//////////////////////////////////// MINIKUBE SETUP ////////////////////////////////////////
+//////////////////////////////////// MINIKUBE SETUP for non prod server ////////////////////////////////////////
 https://github.com/kubernetes/minikube
 dawnload vmwere and virtual box
 
@@ -149,3 +149,206 @@ http:localhost:65468
 
 
 ## if above steps work correcly kubernetes cluster setups is working correcly
+
+////////////////////// kubenetes setup on production cluster ////////////////////////////////
+minikube vs dcoker client vs kops vs kubeadm
+
+-- there are multiple tools to install  a kubernetes cluster
+-- minikube and docker client are used for local cluster setup but not in real cluster
+-- kops and kubeadm are tools to spinup production cluster
+
+-- on AWS 
+-- best tool is kops
+-- on AWS EKS ( hosted kubernetes ) will be available , at that point this will be probbly be the preffered options
+
+###### for other install or if you cannot get kops to work you can use kubeadm 
+
+-- kubeadm is an alternatev approch 
+-- kops is recommended  ( on AWS ) you also have AWS integration with kops automatically
+
+kubeadm with digitalocean cluster setup 
+
+
+////////////////////// kubenetes setup setup kubernetes on aws /////////////////////////////
+
+
+CLOUD SETUP
+
+to setup k8 on AWS use tools is kops
+kops stands for kubernetes operations
+
+-- tools allows you to do production grand installation upgrade and manage
+-- we use this tool to setup k8 cluster on aws
+
+-- there is another lagecy tool called kube-up.shell
+-- this was simple tool to bring up cluster but it is now depreceted it dosent create production ready environment
+
+-- kops works on mac and linux
+-- in windows we need to boot machine using virtual box and load linux os
+-- we can use vagrant to quickly bootup a linux box
+
+cd:\ mkdir ubuntu
+cd:\ cd ubuntu
+cd:\ubuntu\ vagrant init ubuntu/xenial64
+cd:\ubuntu\ vagrant up
+
+vagrant ssh-config
+
+login into vagrant server run below commands
+vagrant ssh
+
+///////////////////////////// 10. KUBERNETES setup on AWS //////////////////////////////////
+
+##login into vagrant server 
+vagrant ssh
+
+##run below commands
+
+goto latest relese and dawnload
+https://github.com/kubernetes/kops
+
+kops-linux-arm64
+
+on server wget https://github.com/kubernetes/kops/releases/download/v1.23.1/kops-linux-arm64
+
+chmod +x kops-linux-arm64
+
+mv kops-linux-arm64 /usr/local/bin/
+
+## python allows us to setup aws command lines to machines
+sudo apt-get install python-pip
+
+## then install aws client
+sudo pip install awscli
+
+## aws command line utility | create and link aws account to use aws utility
+aws
+
+### goto aws.amazon.com create free account and config somethings watch video 10 - intro to kubenetes folder
+-- setup domain and user
+
+
+## to access kops create user on aws 
+## goto >> services >> search box >> iam ( manage access to aws resource )
+>> left side click on users >> add user >> give username kops >> aws access type >> programatic access
+
+goto >> attach existing permissions directly tab >> administrator access >> no tags used >> review >> crate user 
+username kops
+access key id >> aknwdiounapwodaoamdpoa
+secret access key >> ldjkandwuoniod
+
+goto aws cli terminal
+aws configure 
+enter aws access id: aknwdiounapwodaoamdpoa
+enter aws secret access key: ldjkandwuoniod
+default region name:
+default output format:
+
+ls -alh ~/.aws/
+.
+..
+config
+credentials
+
+
+## goto below website shows you the cloud which is nearest to you to use
+https://www.cloudping.info/
+
+
+### STORAGE AND CONTENT DELIVERY
+in aws S3 is like storage drive like google drive
+
+goto create bucket:- give bucket name:- kops-state-1212
+>> choose Region:mumbai using cloudping server which has less ping | where to deploy cluster onwhich region >> create 
+
+
+## set DNS | in aws goto search type networking Route53 | scalable  DNS and domain name registration
+-- kops is also setup dns | we need main and subdomain to register in aws use Route53 
+-- ROUTE53 helps to setup dns management
+  -- enter sub domain 
+  -- first need to create zone to Route53 so kops can manage for you
+  -- we can use freenom.com to get free domain created first or use aws domain registeration
+  -- we hve domain then goto DNS management
+	-- goto >> create hosted zone | cost money on ws or use minikube for free
+	>> create hosted zone : test.tk >> press create >> it create list of name servers we need toconfigure in freename nameserver blanks
+	>> we use tosetup nameserver for main and subdomains
+	
+## once it is done kops manage dns for us using ROUTE53
+## finally all prepration is done we can use the aws cluster using kops
+
+
+///////////////////// 11. DNS troubulshooting /////////////////////
+kops need dns to work cluster properly 
+
+## sudo apt install bind9-host 
+
+## to make sure nameserver and properly set to domains | check below 
+host -t NS anydomain.com 
+ns1
+ns2
+ns3
+ns4
+
+if above command host -t NS anydomain.com is not give output someting is miss or not configured properly | on aws Route53 for zone check
+or something is not working
+
+///////////////////// 12. DEMO cluster setup on aws using kops //////////////////
+
+after the kubectl installed on server
+wget url - to - dwonload - kubectl
+sudo mv kubectl /usr/local/bin/
+chmod 777 /usr/local/bin/kubectl
+kubectl
+
+
+## create ssh keys for cluster to login into cluster
+~ ssh-keygen -f .ssh/id_rsa
+
+## below keys will be upload to instance 
+cat .ssh/id_rsa.pub 
+
+## rename kops binary
+sudo mv /usr/local/bin/kops-linux-arm64 /usr/local/bin/kops
+
+## kops command execute on server | create one t2 micro master and 2 nodes t2 micro
+
+##                  specify dns name specify in route53
+kops create cluster --name=kubernetes.com --state=s3://kops-state-1212 --zone=eu-west-1a --node-count=2 --node-size=t2.micro --master-size=t2.micro --dns-zone=kubernetes.com
+
+##                 finally configure cluster and lanch cluster
+kops update cluster kubernetes.com --yes
+
+##                  edit cluster
+kops edit cluster kubernetes.com --state=s3://kops-state-1212
+
+
+## lancher cluster 
+kops update cluster kubernetes.com --yes --state=s3://kops-state-1212
+
+
+## Cluster is Ready lets check
+
+cat /home/ubuntu/.kube/config
+
+## check nodes
+kubectl get nods
+
+## NOTE:- new kubernetes version  will start  a pod insted of deployment 
+kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4
+## expose externally use Loadbalancer and Node port and expose command with port
+kubectl expose deployment hello-minikube --type=NodePort --port=8080
+
+
+### CREATE AUTO SCALLING GROUP FOR MASTER AND WORKER
+-- IF SOMETHING GOSE WRONG IT RELANCE SERVER INSTANCES
+
+## open ports to expose service outside
+goto >> any worker server >> in below security group >> view inbound group >> open nodeport service >> by default 22 is open
+click on nodes.kubernetes.com >>  goto inboud tab >> edit >> add rule
+custom tcp | TCP | 30032 | myip | then save
+
+
+### LETS delete cluster
+kops delete cluster kubernetes.com --state=s3://kops-state-1212 --yes 
+
+
