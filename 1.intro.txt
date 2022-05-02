@@ -352,3 +352,60 @@ custom tcp | TCP | 30032 | myip | then save
 kops delete cluster kubernetes.com --state=s3://kops-state-1212 --yes 
 
 
+/////////////////////////////// 13 . build docker images ////////////////////////////////////////
+building container
+build own app in docker
+
+local cluster running in in minikube | on aws is kops 
+
+To build container . use docker Engine
+dawnload Docker Engine for Windows ,  Linux , Macos
+
+Need simple Dockerfle  which point and add local setup into docker image
+
+From
+WORKDIR -- create directory in container /app
+ADD ./app -- currentfiles are copied to /app
+RUN npm install -- eecute certain commands  related to images to execute dependencies and package file
+EXPOSE 3000 -- port to see running applications
+CMD npm start -- 
+
+
+-- To build this project docker build can be used
+-- docker build can be executed  manually or by ci/cd softwere like jenkins
+-- after the docker images we can run images into cotainer
+
+//////////////////////////////// 14. demo building docker images ////////////////////////////////////
+your own docker images
+
+sudo apt-get install docker.io
+sudo apr-get install git
+
+git clone https://github.com/wardviaene/docker-demo
+
+cd /docker-demo
+
+## add ubuntu user to docker group
+sudo usermod -G docker ubuntu
+
+vagrant ssh
+
+docker build .
+
+## --it interactive mode
+docker run -p 3000:3000 -it 9812ee12bjn
+
+## run below command in new tab 
+curn localhost:3000
+
+/////////////////////////////// 15. docker registry /////////////////////////////
+## Run docker app  locally
+docker run 
+
+## to make images available to kubernetes	we need to push image to docker registry like docker hub
+connect docker hub
+push docker image locally to Docker registery to store images
+
+docker login
+docker tag imageid kishankp/image-name
+docker push docker tag imageid kishankp/image-name
