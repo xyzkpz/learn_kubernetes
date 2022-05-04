@@ -407,7 +407,7 @@ connect docker hub
 push docker image locally to Docker registery to store images
 
 docker login
-docker tag imageid kishankp/image-name
+docker tag imageid kishankp/image-name:latest
 docker push docker tag imageid kishankp/image-name
 
 OR 
@@ -433,3 +433,49 @@ python
 ruby
 nodejs
 java
+//////////////////////// 17. run app on k8 ///////////////////////
+
+Lets run our newly built app on the new kubernetes cluster
+
+before we can lanch a container based on the image , we need to create pod defination
+
+-- pod describe  an applications running on kubernetes
+-- pod can contain one or more tighly coupled containers that make up the app
+-- those app can easily communicate which each other using local ports
+-- our app has one container
+
+-- to make this app running on kubernetes cluster
+create pod-hello.yml with pod defination
+
+use kubectl to create pod on kubernetes cluster
+kubectl -f path-to-yml
+
+
+///////////////// USEFUL COMMANDS /////////////////
+## get information about all running pods
+  kubectl get pods 
+  
+## describe one pod
+  kubectl describe pod <podname>
+
+## expose the port of pod ( creates a new service )
+  kubectl expose pod <pod>  --port=4444 --name=frontend
+  
+## port forward the exposed pod port to your local machine | on local machine goto that port and port forward to that port
+  kubectl port-forward 	<pod> 8080
+  
+## attach to the pod | to see that is running in pods
+  kubectl attach <podname> -i 
+
+## execute commands on pods | which execute command on conainer
+  kubectl exec <pod> --command
+
+## execute command on specific container using -c and pod id
+  kubectl exec -c <podid, podid,...> 
+  
+## add new label after pod created 
+  kubectl label pods <pod> mylabel=awasome
+  
+## Run a shell in pod -- very useful in debugging | using busybox image which is small in size it can start your shell | when we are in shell we can debug anything easily | bcuz then we are in new pod and it can connect to other pod which may be not functioning
+  kubectl run -i --tty busybox --image=busybox --restart=Never --sh
+                       <image>
