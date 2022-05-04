@@ -409,3 +409,27 @@ push docker image locally to Docker registery to store images
 docker login
 docker tag imageid kishankp/image-name
 docker push docker tag imageid kishankp/image-name
+
+OR 
+
+immidately tag and give name during build process
+cd docker-demo
+
+docker build -t kishankp/image-name .
+
+dcoker push kishankp/image-name
+
+--- build and deploy any applications you want using docker and kubernetes 
+-- you shoud only run one process in one container
+-- dont try to create one gient docker images for your app / splite it up if neccessary
+-- all the data in the container is not preserved , when cotainer stops all the data and changes within container is lost
+-- you can preserve the data using volumes 
+-- for more tips chekkout the 12factor.net
+
+few official images are available for own app
+nginx
+php
+python
+ruby
+nodejs
+java
