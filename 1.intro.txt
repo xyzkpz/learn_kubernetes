@@ -447,6 +447,25 @@ before we can lanch a container based on the image , we need to create pod defin
 -- to make this app running on kubernetes cluster
 create pod-hello.yml with pod defination
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~ pod-hello.yml /////// checked on http://www.yamllint.com/
+--- 
+apiVersion: v1
+kind: Pod
+metadata: 
+  labels: 
+    app: helloworld-example
+  name: helloworld.com
+spec: 
+  containers: 
+    - 
+      image: wardviaene/k8s-demo
+      name: k8s-demo
+      ports: 
+        - 
+          containerPort: 3000
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 use kubectl to create pod on kubernetes cluster
 kubectl -f path-to-yml
 
