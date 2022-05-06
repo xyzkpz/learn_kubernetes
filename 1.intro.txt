@@ -392,7 +392,7 @@ vagrant ssh
 
 docker build .
 
-## --it interactive mode
+## --it interactive mode | when we press ctrl c it killed automatically
 docker run -p 3000:3000 -it 9812ee12bjn
 
 ## run below command in new tab 
@@ -463,11 +463,35 @@ spec:
       ports: 
         - 
           containerPort: 3000
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ explain file 
+start with apiVersion is v1
 
+pd defination -- >kind: Pod
+
+give pod name
+metadata:
+   name:helloworld.com
+
+give pod label | helps us to filter pods
+  labels: 
+    app: helloworld-example
+
+in spec: we put container defination
+
+give container name and image
+  containers: 
+    - 
+      name: k8s-demo
+      image: wardviaene/k8s-node
+
+expose port to container 
+      ports: 
+        - 
+          containerPort: 3000
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 use kubectl to create pod on kubernetes cluster
-kubectl -f path-to-yml
+kubectl -f path-to/Filename.yml
 
 
 ///////////////// USEFUL COMMANDS /////////////////
@@ -498,3 +522,272 @@ kubectl -f path-to-yml
 ## Run a shell in pod -- very useful in debugging | using busybox image which is small in size it can start your shell | when we are in shell we can debug anything easily | bcuz then we are in new pod and it can connect to other pod which may be not functioning
   kubectl run -i --tty busybox --image=busybox --restart=Never --sh
                        <image>
+
+//////////////////////////// 18 . Demo running app on kubernetes /////////////////////
+run command on https://labs.play-with-docker.com/
+or
+on below https://labs.play-with-k8s.com/
+
+git clone https://github.com/wardviaene/docker-demo
+
+git clone https://github.com/wardviaene/kubernetes-course
+
+[node1 first-app]$ pwd
+/kubernetes-course/first-app
+
+[node1 first-app]$ cat helloworld.yml           
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodehelloworld.example.com
+  labels:
+    app: helloworld
+spec:
+  containers:
+  - name: k8s-demo
+    image: wardviaene/k8s-demo
+    ports:
+    - name: nodejs-port
+      containerPort: 3000
+
+root@mining:/home/mining/kubernetes-course/first-app# kubectl get pods
+NAME                         READY   STATUS              RESTARTS   AGE
+nodehelloworld.example.com   0/1     ContainerCreating   0          67s
+
+root@mining:/home/mining/kubernetes-course/first-app# kubectl describe pod nodehelloworld.example.com
+Name:         nodehelloworld.example.com
+Namespace:    default
+Priority:     0
+Node:         mining/192.168.42.129
+Start Time:   Fri, 06 May 2022 15:57:54 +0530
+Labels:       app=helloworld
+Annotations:  cni.projectcalico.org/podIP: 10.1.166.201/32
+              cni.projectcalico.org/podIPs: 10.1.166.201/32
+Status:       Running
+IP:           10.1.166.201
+IPs:
+  IP:  10.1.166.201
+Containers:
+  k8s-demo:
+    Container ID:   containerd://42ec4e96f5e3f3560ff8023fff50c7cbac4a0687c5d165b9215543e118023ea3
+    Image:          wardviaene/k8s-demo
+    Image ID:       docker.io/wardviaene/k8s-demo@sha256:2c050f462f5d0b3a6430e7869bcdfe6ac48a447a89da79a56d0ef61460c7ab9e
+    Port:           3000/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 06 May 2022 16:01:53 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-dmrdr (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  kube-api-access-dmrdr:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  8m3s  default-scheduler  Successfully assigned default/nodehelloworld.example.com to mining
+  Normal  Pulling    8m1s  kubelet            Pulling image "wardviaene/k8s-demo"
+  Normal  Pulled     4m6s  kubelet            Successfully pulled image "wardviaene/k8s-demo" in 3m55.498771922s
+  Normal  Created    4m4s  kubelet            Created container k8s-demo
+  Normal  Started    4m4s  kubelet            Started container k8s-demo
+
+
+
+######Cheatsheet: Docker commands
+
+Build image: docker build .
+
+Build & Tag: docker build -t wardviaene/k8s-demo:latest .
+
+Tag image: docker tag imageid wardviaene/k8s-demo
+
+Push image: docker push wardviaene/k8s-demo
+
+List images: docker images
+
+List all containers: docker ps -a
+
+#####Cheatsheet: Kubernetes commands
+
+kubectl get pod: Get information about all running pods
+
+kubectl describe pod <pod>: Describe one pod
+
+-----------------------------------------------------------
+
+## use port-forward and listen locally to 8081:3000 | we can connect locally on port 8081 to see traffic forwared to 3000 
+kubectl port-forward <pod> 8080: Port forward the exposed pod port to your local machine
+
+open url in browser to see message Helloworld
+http://localhost:8081/
+
+root@mining:/home/mining/kubernetes-course/first-app# kubectl port-forward nodehelloworld.example.com 8081:3000
+Forwarding from 127.0.0.1:8081 -> 3000
+Forwarding from [::1]:8081 -> 3000
+Handling connection for 8081
+
+OR 
+
+Create Servvice on aws if we run cluster on aws  | if we run minikube we just expose the port and connect directly
+we can do the same on aws cluster | we always use Loadbalancer on AWS which is better 
+
+--------------------------------------------------------
+kubectl expose pod <pod> --port=444 --name=frontend: Expose the port of a pod (creates a new service)
+
+wwe can use type nodeport which directly expose port 3000 on kubernetes | provide name for service
+kubectl expose pod nodehelloworld.example.com --type=NodePort --name=nodehelloworld-service
+
+
+root@mining:/home/mining/kubernetes-course/first-app# kubectl get service
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.152.183.1   <none>        443/TCP   306d
+root@mining:/home/mining/kubernetes-course/first-app# kubectl get pod -o wide
+NAME                         READY   STATUS    RESTARTS   AGE   IP             NODE     NOMINATED NODE   READINESS GATES
+nodehelloworld.example.com   1/1     Running   0          31m   10.1.166.201   mining   <none>           <none>
+root@mining:/home/mining/kubernetes-course/first-app# kubectl expose pod nodehelloworld.example.com --type=NodePort --name=nodehelloworld-service
+service/nodehelloworld-service exposed
+root@mining:/home/mining/kubernetes-course/first-app# kubectl get service
+NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kubernetes               ClusterIP   10.152.183.1    <none>        443/TCP          306d
+nodehelloworld-service   NodePort    10.152.183.45   <none>        3000:30903/TCP   9s
+
+Run below command on browser
+http://localhost:30903/
+
+
+need to specify ipaddress of kubernetes cluster to connect | on aws use masternode and specific se security group masterzone | on minikube 
+
+-------------------------------------------------------
+///////////////////// 19 . demo useful kubectl commands //////////////////////
+
+
+
+kubectl attach <podname> -i: Attach process to the pod | it will display the logs if there any 
+#### mostly use for checking the  pods frentend and backed 2 pods are talking like web app talking to database
+
+
+Croot@mining:/home/mining/kubernetes-course/first-app# kubectl attach nodehelloworld.example.com -i
+If you don't see a command prompt, try pressing enter.
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------
+
+kubectl exec <pod> -- command: Execute a command on the pod
+
+
+
+kubectl exec nodehelloworld.example.com -- ls 
+root@mining:/home/mining/kubernetes-course/first-app# kubectl exec nodehelloworld.example.com -- ls 
+Dockerfile
+docker-compose.yml
+index-db.js
+index.js
+misc
+node_modules
+package.json
+root@mining:/home/mining/kubernetes-course/first-app# kubectl exec nodehelloworld.example.com -- pwd
+/app
+
+NOTE :-
+
+if any file created or deleted in running pods if pod stops data of pod never persistent | it will be deleted too 
+we need to use volumens if data to be persistent overtime 
+
+---------------------------------------------
+root@mining:/home/mining/kubernetes-course/first-app# kubectl get service
+NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kubernetes               ClusterIP   10.152.183.1    <none>        443/TCP          306d
+nodehelloworld-service   NodePort    10.152.183.45   <none>        3000:30903/TCP   32m
+root@mining:/home/mining/kubernetes-course/first-app# kubectl describe service nodehelloworld-service
+Name:                     nodehelloworld-service
+Namespace:                default
+Labels:                   app=helloworld
+Annotations:              <none>
+Selector:                 app=helloworld
+Type:                     NodePort
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.152.183.45
+IPs:                      10.152.183.45
+Port:                     <unset>  3000/TCP
+TargetPort:               3000/TCP
+NodePort:                 <unset>  30903/TCP    <--------- it is static port which is always accessable 
+Endpoints:                10.1.166.201:3000     <---- or use endpoint 
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+root@mining:/home/mining/kubernetes-course/first-app#
+
+## lanch another pod using busybox | and excute shell sh | it create new containr | and execute command on cluster 
+kubectl run -i --tty busybox --image=busybox --restart=Never -- sh: Run a shell in a pod - very useful for debugging
+
+oot@mining:/home/mining/kubernetes-course/first-app# hostname -i
+127.0.1.1
+root@mining:/home/mining/kubernetes-course/first-app# telnet 10.1.166.201 3000
+Trying 10.1.166.201...
+Connected to 10.1.166.201.
+Escape character is '^]'.
+^]
+telnet> \q
+Connection closed.
+root@mining:/home/mining/kubernetes-course/first-app# telnet localhost 30903
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+^]
+telnet> \q
+Connection closed.
+
+
+Next we learn how to expose service that uses loadbalancer on aws
+------------------------------------------------
+
+
+
+kubectl label pods <pod> mylabel=awesome: Add a new label to a pod
+
+
+kubectl get deployments: Get information on current deployments
+
+kubectl get rs: Get information about the replica sets
+
+kubectl get pods --show-labels: get pods, and also show labels attached to those pods
+
+kubectl rollout status deployment/helloworld-deployment: Get deployment status
+
+kubectl set image deployment/helloworld-deployment k8s-demo=k8s-demo:2: Run k8s-demo with the image label version 2
+
+kubectl edit deployment/helloworld-deployment: Edit the deployment object
+
+kubectl rollout status deployment/helloworld-deployment: Get the status of the rollout
+
+kubectl rollout history deployment/helloworld-deployment: Get the rollout history
+
+kubectl rollout undo deployment/helloworld-deployment: Rollback to previous version
+
+kubectl rollout undo deployment/helloworld-deployment --to-revision=n: Rollback to any version version
